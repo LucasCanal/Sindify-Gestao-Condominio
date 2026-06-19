@@ -275,6 +275,25 @@ const removePet = async (req, res) => {
 
 // ===== MORADORES (pela própria unidade) =====
 
+const addResidentToMyUnit = async (req, res) => {
+  try {
+    const apartmentId = await findMyApartment(req)
+    if (!apartmentId) return notFound(res, 'Você não possui unidade vinculada')
+
+    const { name, role } = req.body
+
+    const apartment = await Apartment.findByIdAndUpdate(
+      apartmentId,
+      { $push: { residentsInfo: { name, role } } },
+      { new: true, runValidators: true }
+    )
+
+    return created(res, { apartment }, 'Morador adicionado com sucesso')
+  } catch (e) {
+    return res.status(500).json({ ok: false, message: e.message })
+  }
+}
+
 // ===== CONTATOS DE EMERGÊNCIA =====
 
 const addEmergencyContact = async (req, res) => {
@@ -410,6 +429,7 @@ module.exports = {
   removePet,
   addVehicle,
   removeVehicle,
+  addResidentToMyUnit,
   removeResidentFromMyUnit,
   addEmergencyContact,
   removeEmergencyContact,

@@ -113,11 +113,11 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '20px' }}>
         <SectionCard title="Dados da Unidade">
           {unit ? (
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
               <Info label="Apartamento" value={unit.number || '—'} />
               <Info label="Bloco" value={unit.block || '—'} />
-              {unit.floor != null && <Info label="Andar" value={`${unit.floor}º`} />}
-              {unit.area && <Info label="Área" value={`${unit.area}m²`} />}
+              <Info label="Andar" value={unit.floor != null ? `${unit.floor}º` : '—'} />
+              <Info label="Área" value={unit.area ? `${unit.area}m²` : '—'} />
               <Info label="Tipo" value={unit.type || 'Residencial'} />
             </div>
           ) : (
@@ -187,7 +187,7 @@ function Info({ label, value }) {
   return (
     <div>
       <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af' }}>{label}</p>
-      <strong style={{ color: '#1e1b4b' }}>{value}</strong>
+      <strong style={{ color: '#1e1b4b', fontSize: '15px' }}>{value ?? '—'}</strong>
     </div>
   )
 }

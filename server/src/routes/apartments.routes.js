@@ -16,6 +16,7 @@ const {
   removePet,
   addVehicle,
   removeVehicle,
+  addResidentToMyUnit,
   removeResidentFromMyUnit,
   addEmergencyContact,
   removeEmergencyContact,
@@ -35,6 +36,7 @@ router.get('/my-unit', getMyUnit)
 router.post('/my-unit', createMyUnit)
 
 // Moradores da própria unidade
+router.post('/my-unit/residents', addResidentToMyUnit)
 router.delete('/my-unit/residents/:residentId', removeResidentFromMyUnit)
 
 // Visitantes
