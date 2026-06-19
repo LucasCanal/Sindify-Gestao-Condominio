@@ -20,7 +20,6 @@ const createVehicle = async (req, res) => {
 try {
 const { plate, brand, model, color, parkingSpot } = req.body
 
-```
 if (!plate) {
   return badRequest(res, 'Placa é obrigatória')
 }
@@ -65,7 +64,6 @@ return created(
   { vehicle },
   'Veículo cadastrado com sucesso'
 )
-```
 
 } catch (e) {
 return res.status(500).json({
@@ -80,7 +78,6 @@ const getVehicles = async (req, res) => {
 try {
 const { page, limit, skip } = getPagination(req.query)
 
-```
 const filter = {
   active: true,
 }
@@ -109,7 +106,6 @@ return success(
     limit
   )
 )
-```
 
 } catch (e) {
 return res.status(500).json({
@@ -124,7 +120,6 @@ const getMyVehicles = async (req, res) => {
 try {
 const user = await User.findById(req.user._id)
 
-```
 if (!user || !user.apartment) {
   return notFound(
     res,
@@ -140,7 +135,6 @@ const vehicles = await Vehicle.find({
   .sort({ createdAt: -1 })
 
 return success(res, { vehicles })
-```
 
 } catch (e) {
 return res.status(500).json({
@@ -157,13 +151,11 @@ const vehicle = await Vehicle.findById(req.params.id)
 .populate('apartment', 'number block')
 .populate('owner', 'name email')
 
-```
 if (!vehicle) {
   return notFound(res, 'Veículo não encontrado')
 }
 
 return success(res, { vehicle })
-```
 
 } catch (e) {
 return res.status(500).json({
@@ -178,7 +170,6 @@ const updateVehicle = async (req, res) => {
 try {
 const { brand, model, color, parkingSpot } = req.body
 
-```
 const vehicle = await Vehicle.findById(req.params.id)
 
 if (!vehicle) {
@@ -215,7 +206,6 @@ return success(
   { vehicle },
   'Veículo atualizado com sucesso'
 )
-```
 
 } catch (e) {
 return res.status(500).json({
@@ -230,7 +220,6 @@ const deleteVehicle = async (req, res) => {
 try {
 const vehicle = await Vehicle.findById(req.params.id)
 
-```
 if (!vehicle) {
   return notFound(res, 'Veículo não encontrado')
 }
@@ -260,7 +249,6 @@ return success(
   {},
   'Veículo removido com sucesso'
 )
-```
 
 } catch (e) {
 return res.status(500).json({
