@@ -1,0 +1,29 @@
+require('dotenv').config()
+const mongoose = require('mongoose')
+const User = require('./models/User')
+
+async function listUsers() {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI)
+    console.log('Conectado ao MongoDB.\n')
+
+    const users = await User.find({}, 'name email role active createdAt').sort({ createdAt: 1 })
+
+    if (users.length === 0) {
+      console.log('Nenhum usuário encontrado no banco.')
+    } else {
+      console.log(`Encontrados ${users.length} usuário(s):\n`)
+      users.forEach((u, i) => {
+        console.log(`${i + 1}. ${u.email}  |  nome: ${u.name}  |  role: ${u.role}  |  ativo: ${u.active}`)
+      })
+    }
+  } catch (err) {
+    console.error('Erro ao listar usuários:', err.message)
+  } finally {
+    await mongoose.disconnect()
+    process.exit(0)
+  }
+}
+
+listUsers()
+

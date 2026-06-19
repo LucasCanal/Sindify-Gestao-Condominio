@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #f3f4f6;
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Garante que elementos de texto e botões também herdem a Poppins */
+button, input, textarea, select {
+  font-family: 'Poppins', sans-serif;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #111118; }
+::-webkit-scrollbar-thumb { background: #2e2e3e; border-radius: 99px; }
+
+@layer components {
+  .card {
+    @apply bg-[#111118] border border-[#22222f] rounded-2xl p-6;
+  }
+  .btn-primary {
+    @apply bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 rounded-xl transition-all duration-200;
+  }
+  .btn-ghost {
+    @apply bg-transparent hover:bg-[#1a1a24] text-gray-400 hover:text-gray-100 font-medium px-4 py-2 rounded-xl transition-all duration-200;
+  }
+  .input {
+    @apply bg-[#1a1a24] border border-[#2e2e3e] text-gray-100 placeholder-gray-500 rounded-xl px-4 py-2.5 w-full focus:outline-none focus:border-violet-500 transition-colors;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
