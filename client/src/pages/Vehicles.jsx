@@ -214,8 +214,10 @@ export default function Vehicles() {
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Car size={18} />
-                  <strong>{[v.brand, v.model].filter(Boolean).join(' ') || 'Veículo'}</strong>
+                  <Car size={18} color="#6b7280" />
+                  <strong style={{ color: '#6b7280', fontWeight: '600' }}>
+                    {[v.brand, v.model].filter(Boolean).join(' ') || 'Veículo'}
+                  </strong>
                 </div>
                 <p style={{ color: '#6b7280', margin: '6px 0 0' }}>{v.plate}</p>
                 {v.color && <p style={{ color: '#6b7280', margin: '2px 0 0' }}>Cor: {v.color}</p>}
@@ -242,15 +244,23 @@ export default function Vehicles() {
             .map((v) => (
               <Info
                 key={v._id}
-                label={[v.brand, v.model].filter(Boolean).join(' ') || v.plate}
-                value={`Vaga ${v.parkingSpot}`}
+                label={
+                  <span style={{ color: '#6b7280', fontWeight: '300' }}>
+                    {[v.brand, v.model].filter(Boolean).join(' ') || v.plate}
+                  </span>
+                }
+                value={
+                  <span style={{ color: '#6b7280', fontWeight: '300' }}>
+                    Vaga {v.parkingSpot}
+                  </span>
+                }
               />
             ))}
         </SectionCard>
 
         <SectionCard title="Condutores Autorizados" icon={ShieldCheck}>
           {authorizedDrivers.length === 0 && (
-            <p style={{ color: '#9ca3af', margin: '0 0 12px' }}>Nenhum condutor autorizado.</p>
+            <p style={{ color: '#6b7280', fontWeight: '300', margin: '0 0 12px' }}>Nenhum condutor autorizado.</p>
           )}
           {authorizedDrivers.map((d) => (
             <div

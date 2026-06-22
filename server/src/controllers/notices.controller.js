@@ -74,22 +74,32 @@ const getNoticeById = async (req, res) => {
   }
 }
 
-// Marcar aviso como lido
-const markAsRead = async (req, res) => {
+// Alterna o status de leitura do aviso (lido <-> não lido)
+const toggleRead = async (req, res) => {
   try {
     const notice = await Notice.findById(req.params.id)
     if (!notice) return notFound(res, 'Aviso não encontrado')
 
+    const userId = req.user._id.toString()
     const alreadyRead = notice.readBy.some(
-      (r) => r.user.toString() === req.user._id.toString()
+      (r) => r.user.toString() === userId
     )
 
-    if (!alreadyRead) {
+    if (alreadyRead) {
+      notice.readBy = notice.readBy.filter(
+        (r) => r.user.toString() !== userId
+      )
+    } else {
       notice.readBy.push({ user: req.user._id })
-      await notice.save()
     }
 
-    return success(res, {}, 'Aviso marcado como lido')
+    await notice.save()
+
+    return success(
+      res,
+      { read: !alreadyRead },
+      alreadyRead ? 'Aviso marcado como não lido' : 'Aviso marcado como lido'
+    )
   } catch (e) {
     return res.status(500).json({ ok: false, message: e.message })
   }
@@ -128,7 +138,7 @@ module.exports = {
   createNotice,
   getNotices,
   getNoticeById,
-  markAsRead,
+  toggleRead,
   updateNotice,
   deleteNotice,
 }

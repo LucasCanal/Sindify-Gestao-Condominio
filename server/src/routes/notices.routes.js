@@ -4,7 +4,7 @@ const {
   createNotice,
   getNotices,
   getNoticeById,
-  markAsRead,
+  toggleRead,
   updateNotice,
   deleteNotice,
 } = require('../controllers/notices.controller')
@@ -16,7 +16,7 @@ router.use(auth)
 router.get('/',               getNotices)
 router.get('/:id',            getNoticeById)
 router.post('/',              role(['sindico', 'conselheiro']), createNotice)
-router.patch('/:id/read',     markAsRead)
+router.patch('/:id/read',     toggleRead)
 router.put('/:id',            role(['sindico', 'conselheiro']), updateNotice)
 router.delete('/:id',         role(['sindico']), deleteNotice)
 

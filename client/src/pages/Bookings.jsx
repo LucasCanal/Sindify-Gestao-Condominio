@@ -9,7 +9,11 @@ import {
   UtensilsCrossed,
   Trophy,
   Building2,
+  Check,
+  Clock,
+  Users,
   X,
+  Clapperboard,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
@@ -21,7 +25,9 @@ const pickIcon = (name = '') => {
   if (n.includes('churras')) return Flame
   if (n.includes('gourmet') || n.includes('cozinha')) return UtensilsCrossed
   if (n.includes('quadra') || n.includes('society') || n.includes('esporte')) return Trophy
-  if (n.includes('sauna') || n.includes('piscina')) return Waves
+  if (n.includes('sauna')) return Flame
+  if (n.includes('piscina')) return Waves
+  if (n.includes('cinema') || n.includes('cine')) return Clapperboard
   return Building2
 }
 
@@ -71,8 +77,12 @@ export default function Bookings() {
   }, [])
 
   const createReservation = async () => {
-    if (!selectedSpace || !date || !startTime || !endTime) {
-      toast.error('Preencha área, data, início e fim.')
+    if (!selectedSpace) {
+      toast.error('Selecione uma área para reservar.')
+      return
+    }
+    if (!date || !startTime || !endTime) {
+      toast.error('Preencha data, início e fim.')
       return
     }
     try {
@@ -122,7 +132,7 @@ export default function Bookings() {
     }
   }
 
-  const selectedSpaceName = spaces.find((s) => s._id === selectedSpace)?.name || ''
+  const selectedSpaceObj = spaces.find((s) => s._id === selectedSpace)
 
   if (loading) return <p style={{ color: '#6b7280' }}>Carregando reservas...</p>
 
@@ -142,6 +152,15 @@ export default function Bookings() {
       </div>
 
       {/* Áreas */}
+      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <h2 style={{ margin: 0, fontSize: '16px', color: '#1e1b4b' }}>Escolha a área</h2>
+        {selectedSpaceObj && (
+          <span style={{ fontSize: '13px', color: '#7c3aed', fontWeight: '600' }}>
+            {selectedSpaceObj.name} selecionada
+          </span>
+        )}
+      </div>
+
       {spaces.length === 0 ? (
         <p style={{ color: '#9ca3af', marginBottom: '28px' }}>
           Nenhuma área cadastrada.{isSindico ? ' Crie a primeira clicando em "Nova Área".' : ''}
@@ -159,24 +178,66 @@ export default function Bookings() {
             const Icon = pickIcon(space.name)
             const active = selectedSpace === space._id
             return (
-              <div
+              <button
                 key={space._id}
+                type="button"
                 onClick={() => setSelectedSpace(space._id)}
                 style={{
-                  background: active ? '#ede9fe' : '#ffffff',
+                  position: 'relative',
+                  textAlign: 'left',
+                  background: active ? '#f5f3ff' : '#ffffff',
                   border: active ? '2px solid #7c3aed' : '1px solid #ece9f5',
+                  boxShadow: active ? '0 4px 14px rgba(124,58,237,0.15)' : 'none',
                   borderRadius: '16px',
-                  padding: '24px',
+                  padding: '22px',
                   cursor: 'pointer',
-                  transition: '0.2s',
+                  transition: 'all 0.18s ease',
+                  fontFamily: 'inherit',
                 }}
               >
-                <Icon size={28} color="#7c3aed" />
-                <h3 style={{ marginBottom: '6px', color: '#1e1b4b' }}>{space.name}</h3>
-                <span style={{ color: '#16a34a', fontSize: '14px' }}>
-                  {space.openTime} - {space.closeTime}
+                {active && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '14px',
+                      right: '14px',
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      background: '#7c3aed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Check size={13} color="#fff" strokeWidth={3} />
+                  </span>
+                )}
+                <div
+                  style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: active ? '#ede9fe' : '#f5f3ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '14px',
+                  }}
+                >
+                  <Icon size={24} color="#7c3aed" />
+                </div>
+                <h3 style={{ margin: '0 0 6px', color: '#1e1b4b', fontSize: '16px' }}>{space.name}</h3>
+                {space.capacity ? (
+                  <p style={{ margin: '0 0 6px', color: '#6b7280', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Users size={13} /> Até {space.capacity} pessoas
+                  </p>
+                ) : null}
+                <span style={{ color: '#16a34a', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: '600' }}>
+                  <Clock size={13} />
+                  {space.openTime} – {space.closeTime}
                 </span>
-              </div>
+              </button>
             )
           })}
         </div>
@@ -188,23 +249,19 @@ export default function Bookings() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '16px' }}>
           <div>
-            <label>Área Selecionada</label>
-            <input value={selectedSpaceName} readOnly placeholder="Escolha uma área" style={inputStyle} />
-          </div>
-          <div>
-            <label>Data</label>
+            <label style={{ color: '#6b7280', fontWeight: '300' }} >Data</label>
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={inputStyle} />
           </div>
           <div>
-            <label>Início</label>
+            <label style={{ color: '#6b7280', fontWeight: '300' }} >Início</label>
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} style={inputStyle} />
           </div>
           <div>
-            <label>Fim</label>
+            <label style={{ color: '#6b7280', fontWeight: '300' }} >Fim</label>
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} style={inputStyle} />
           </div>
           <div>
-            <label>Convidados</label>
+            <label style={{ color: '#6b7280', fontWeight: '300' }} >Convidados</label>
             <input type="number" value={guests} onChange={(e) => setGuests(e.target.value)} placeholder="0" style={inputStyle} />
           </div>
         </div>
@@ -297,6 +354,8 @@ const inputStyle = {
   borderRadius: '10px',
   marginTop: '6px',
   boxSizing: 'border-box',
+  color: '#6b7280',
+  fontWeight: '300',
 }
 
 const buttonStyle = {

@@ -55,12 +55,12 @@ export default function Notices() {
   const isRead = (notice) =>
     (notice.readBy || []).some((r) => (r.user?._id || r.user) === userId)
 
-  const handleMarkAsRead = async (id) => {
+  const handleToggleRead = async (id) => {
     try {
       await api.patch(`/notices/${id}/read`)
       fetchNotices()
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Erro ao marcar como lido')
+      toast.error(error.response?.data?.message || 'Erro ao atualizar status de leitura')
     }
   }
 
@@ -136,7 +136,7 @@ export default function Notices() {
               key={notice._id}
               notice={notice}
               read={isRead(notice)}
-              onMarkAsRead={handleMarkAsRead}
+              onToggleRead={handleToggleRead}
             />
           ))}
         </div>
@@ -185,7 +185,7 @@ function StatCard({ icon: Icon, value, label }) {
   )
 }
 
-function NoticeCard({ notice, read, onMarkAsRead }) {
+function NoticeCard({ notice, read, onToggleRead }) {
   const cat = categoryInfo(notice.category)
   return (
     <div style={{ background: '#ffffff', border: '1px solid #ece9f5', borderRadius: '16px', padding: '22px' }}>
@@ -203,11 +203,11 @@ function NoticeCard({ notice, read, onMarkAsRead }) {
 
       <div style={{ marginTop: '14px' }}>
         {read ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#16a34a', fontSize: '13px', fontWeight: '600' }}>
+          <button onClick={() => onToggleRead(notice._id)} style={readBtnStyle}>
             <Eye size={15} /> Lido
-          </span>
+          </button>
         ) : (
-          <button onClick={() => onMarkAsRead(notice._id)} style={outlineBtnStyle}>
+          <button onClick={() => onToggleRead(notice._id)} style={outlineBtnStyle}>
             Marcar como lido
           </button>
         )}
@@ -240,6 +240,19 @@ const outlineBtnStyle = {
   cursor: 'pointer',
   fontWeight: '600',
   fontSize: '13px',
+}
+
+const readBtnStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '6px',
+  color: '#16a34a',
+  fontSize: '13px',
+  fontWeight: '600',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: 0,
 }
 
 const overlayStyle = {
