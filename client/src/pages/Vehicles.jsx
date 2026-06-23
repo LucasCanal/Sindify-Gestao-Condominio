@@ -6,6 +6,7 @@ import {
   Plus,
   Trash2,
   X,
+  AlertTriangle,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../services/api'
@@ -60,6 +61,10 @@ export default function Vehicles() {
   const [driverPhone, setDriverPhone] = useState('')
   const [driverDoc, setDriverDoc] = useState('')
 
+  // Modal de confirmação de exclusão (veículo ou condutor)
+  // { kind: 'vehicle', id, label } ou { kind: 'driver', vehicleId, driverId, label }
+  const [deleteTarget, setDeleteTarget] = useState(null)
+
   const fetchVehicles = async () => {
     try {
       const { data } = await api.get('/vehicles/me')
@@ -96,15 +101,43 @@ export default function Vehicles() {
     }
   }
 
-  const handleDeleteVehicle = async (id) => {
-    if (!confirm('Tem certeza que deseja remover este veículo?')) return
-    try {
-      await api.delete(`/vehicles/${id}`)
-      toast.success('Veículo removido')
-      fetchVehicles()
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erro ao remover veículo')
+  // Abre o modal de confirmação para excluir veículo
+  const handleRequestDeleteVehicle = (vehicle) => {
+    const label = [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || vehicle.plate
+    setDeleteTarget({ kind: 'vehicle', id: vehicle._id, label })
+  }
+
+  // Abre o modal de confirmação para remover condutor
+  const handleRequestRemoveDriver = (vehicleId, driver) => {
+    setDeleteTarget({ kind: 'driver', vehicleId, driverId: driver._id, label: driver.name })
+  }
+
+  const handleCloseDeleteModal = () => {
+    setDeleteTarget(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+
+    if (deleteTarget.kind === 'vehicle') {
+      try {
+        await api.delete(`/vehicles/${deleteTarget.id}`)
+        toast.success('Veículo removido')
+        fetchVehicles()
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Erro ao remover veículo')
+      }
+    } else if (deleteTarget.kind === 'driver') {
+      try {
+        await api.delete(`/vehicles/${deleteTarget.vehicleId}/authorized-drivers/${deleteTarget.driverId}`)
+        toast.success('Condutor removido')
+        fetchVehicles()
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Erro ao remover condutor')
+      }
     }
+
+    setDeleteTarget(null)
   }
 
   const handleAddDriver = async (e) => {
@@ -123,16 +156,6 @@ export default function Vehicles() {
       fetchVehicles()
     } catch (error) {
       toast.error(error.response?.data?.message || 'Erro ao adicionar condutor')
-    }
-  }
-
-  const handleRemoveDriver = async (vehicleId, driverId) => {
-    try {
-      await api.delete(`/vehicles/${vehicleId}/authorized-drivers/${driverId}`)
-      toast.success('Condutor removido')
-      fetchVehicles()
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erro ao remover condutor')
     }
   }
 
@@ -223,7 +246,7 @@ export default function Vehicles() {
                 {v.color && <p style={{ color: '#6b7280', margin: '2px 0 0' }}>Cor: {v.color}</p>}
                 {v.parkingSpot && <p style={{ color: '#6b7280', margin: '2px 0 0' }}>Vaga: {v.parkingSpot}</p>}
               </div>
-              <button onClick={() => handleDeleteVehicle(v._id)} style={deleteBtnStyle}>
+              <button onClick={() => handleRequestDeleteVehicle(v)} style={deleteBtnStyle}>
                 <Trash2 size={16} />
               </button>
             </div>
@@ -280,7 +303,7 @@ export default function Vehicles() {
                 <p style={{ color: '#6b7280', margin: '6px 0 0' }}>{d.vehicleModel}</p>
                 {d.phone && <p style={{ color: '#6b7280', margin: '2px 0 0' }}>{d.phone}</p>}
               </div>
-              <button onClick={() => handleRemoveDriver(d.vehicleId, d._id)} style={deleteBtnStyle}>
+              <button onClick={() => handleRequestRemoveDriver(d.vehicleId, d)} style={deleteBtnStyle}>
                 <Trash2 size={16} />
               </button>
             </div>
@@ -345,6 +368,41 @@ export default function Vehicles() {
           </form>
         </Modal>
       )}
+
+      {/* Modal: confirmação de exclusão (veículo ou condutor) */}
+      {deleteTarget && (
+        <Modal title="" onClose={handleCloseDeleteModal}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '12px',
+                background: '#fef2f2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '12px',
+              }}
+            >
+              <AlertTriangle size={22} color="#ef4444" />
+            </div>
+
+            <h2 style={{ margin: '0 0 8px', fontSize: '17px', color: '#1e1b4b' }}>
+              {deleteTarget.kind === 'vehicle' ? 'Remover veículo' : 'Remover condutor'}
+            </h2>
+            <p style={{ margin: '0 0 24px', color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+              Tem certeza que deseja remover{' '}
+              <strong style={{ color: '#1e1b4b' }}>{deleteTarget.label || 'este item'}</strong>? Essa ação não pode ser desfeita.
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={handleCloseDeleteModal} style={cancelBtnStyle}>Cancelar</button>
+              <button onClick={handleConfirmDelete} style={confirmDeleteBtnStyle}>Remover</button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
@@ -353,8 +411,8 @@ function Modal({ title, onClose, children }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <div style={{ background: '#fff', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#1e1b4b' }}>{title}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: title ? '20px' : 0 }}>
+          {title ? <h2 style={{ margin: 0, fontSize: '18px', color: '#1e1b4b' }}>{title}</h2> : <span />}
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}><X size={20} /></button>
         </div>
         {children}
@@ -419,6 +477,30 @@ const deleteBtnStyle = {
   color: '#ef4444',
   cursor: 'pointer',
   padding: '4px',
+}
+
+const cancelBtnStyle = {
+  flex: 1,
+  padding: '12px',
+  border: '1px solid #d1d5db',
+  borderRadius: '10px',
+  background: '#fff',
+  color: '#374151',
+  cursor: 'pointer',
+  fontWeight: '600',
+  fontSize: '14px',
+}
+
+const confirmDeleteBtnStyle = {
+  flex: 1,
+  padding: '12px',
+  border: 'none',
+  borderRadius: '10px',
+  background: '#ef4444',
+  color: '#fff',
+  cursor: 'pointer',
+  fontWeight: '600',
+  fontSize: '14px',
 }
 
 const labelStyle = {

@@ -23,12 +23,12 @@ export default function Landing() {
       {/* topo */}
       <Header />
 
-      {/* meio - Fluxo contínuo da página */}
+      {/* meio */}
       <main style={{ flex: 1 }}>
         {/* Banner principal do topo */}
         <Hero />
         
-        {/* Seção moderna com as soluções mapeadas em órbita */}
+        {/* Seção moderna  */}
         <FeaturesDiagram />
         <CaseStudies />
         <Avaliation />

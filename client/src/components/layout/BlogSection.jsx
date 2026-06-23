@@ -156,7 +156,7 @@ export default function BlogSection() {
               <div style={{ position: 'absolute', width: '180px', height: '180px', borderRadius: '50%', border: '1px solid rgba(167,139,250,0.3)', top: '20px', left: '40px' }} />
               <div style={{ position: 'absolute', width: '120px', height: '120px', borderRadius: '50%', border: '1px solid rgba(167,139,250,0.2)', bottom: '10px', right: '30px' }} />
               <div style={{ position: 'absolute', width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(167,139,250,0.15)', top: '40px', right: '60px' }} />
-              <span style={{ fontSize: '64px', position: 'relative', zIndex: 1 }}>🤖</span>
+              <span style={{ fontSize: '64px', position: 'relative', zIndex: 1 }}>👩‍💻</span>
             </div>
 
             <div style={{ background: '#ffffff', padding: '28px 28px 32px', border: '1px solid rgba(167, 139, 250, 0.1)', borderTop: 'none' }}>

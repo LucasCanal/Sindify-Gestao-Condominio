@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Home, Users, UserPlus, PawPrint, Phone, Plus, Trash2, X, Car } from 'lucide-react'
+import { Home, Users, UserPlus, PawPrint, Phone, Plus, Trash2, X, Car, AlertTriangle } from 'lucide-react'
 import api from '../services/api'
 
 const SectionCard = ({ title, icon: Icon, children, onAdd, showAddButton, addLabel }) => (
@@ -48,6 +48,9 @@ export default function Apartments() {
   // Controle de Modal genérico
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalType, setModalType] = useState('') // 'resident', 'visitor', 'pet', 'vehicle', 'emergency'
+
+  // Controle do Modal de confirmação de exclusão
+  const [deleteTarget, setDeleteTarget] = useState(null) // { subType, id, label }
 
   // Estados do formulário do modal
   const [name, setName] = useState('')
@@ -156,13 +159,26 @@ export default function Apartments() {
     }
   }
 
-  const handleDeleteItem = async (subType, id) => {
-    if (!confirm('Tem certeza que deseja remover este item?')) return
+  // Abre o modal de confirmação guardando qual item será removido
+  const handleRequestDelete = (subType, id, label) => {
+    setDeleteTarget({ subType, id, label })
+  }
+
+  const handleCloseDeleteModal = () => {
+    setDeleteTarget(null)
+  }
+
+  // Só executa a exclusão de fato quando o usuário confirma no modal
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    const { subType, id } = deleteTarget
     try {
       await api.delete(`/apartments/my-unit/${subType}/${id}`)
       fetchUnitDetails()
     } catch (error) {
       console.error('Erro ao remover item', error)
+    } finally {
+      setDeleteTarget(null)
     }
   }
 
@@ -255,7 +271,7 @@ export default function Apartments() {
                 <strong style={cardItemTitleStyle}>{r.name}</strong>
                 <p style={cardItemSubtitleStyle}>{r.role}</p>
               </div>
-              <button onClick={() => handleDeleteItem('residents', r._id)} style={deleteBtnStyle}><Trash2 size={16} /></button>
+              <button onClick={() => handleRequestDelete('residents', r._id, r.name)} style={deleteBtnStyle}><Trash2 size={16} /></button>
             </div>
           ))}
         </SectionCard>
@@ -267,7 +283,7 @@ export default function Apartments() {
                 <strong style={cardItemTitleStyle}>{v.name}</strong>
                 <p style={cardItemSubtitleStyle}>Autorizado até: {v.authorizationDate || 'Permanente'}</p>
               </div>
-              <button onClick={() => handleDeleteItem('visitors', v._id)} style={deleteBtnStyle}><Trash2 size={16} /></button>
+              <button onClick={() => handleRequestDelete('visitors', v._id, v.name)} style={deleteBtnStyle}><Trash2 size={16} /></button>
             </div>
           ))}
         </SectionCard>
@@ -279,7 +295,7 @@ export default function Apartments() {
                 <strong style={cardItemTitleStyle}>{v.model}</strong>
                 <p style={cardItemSubtitleStyle}>Placa: {v.plate}</p>
               </div>
-              <button onClick={() => handleDeleteItem('vehicles', v._id)} style={deleteBtnStyle}><Trash2 size={16} /></button>
+              <button onClick={() => handleRequestDelete('vehicles', v._id, v.model)} style={deleteBtnStyle}><Trash2 size={16} /></button>
             </div>
           ))}
         </SectionCard>
@@ -291,7 +307,7 @@ export default function Apartments() {
                 <strong style={cardItemTitleStyle}>{p.name}</strong>
                 <p style={cardItemSubtitleStyle}>{p.kind}</p>
               </div>
-              <button onClick={() => handleDeleteItem('pets', p._id)} style={deleteBtnStyle}><Trash2 size={16} /></button>
+              <button onClick={() => handleRequestDelete('pets', p._id, p.name)} style={deleteBtnStyle}><Trash2 size={16} /></button>
             </div>
           ))}
         </SectionCard>
@@ -304,7 +320,7 @@ export default function Apartments() {
                 <p style={cardItemSubtitleStyle}>{c.kinship || '—'}</p>
                 <p style={cardItemPhoneStyle}>{c.phone}</p>
               </div>
-              <button onClick={() => handleDeleteItem('emergency-contacts', c._id)} style={deleteBtnStyle}><Trash2 size={16} /></button>
+              <button onClick={() => handleRequestDelete('emergency-contacts', c._id, c.name)} style={deleteBtnStyle}><Trash2 size={16} /></button>
             </div>
           ))}
         </SectionCard>
@@ -385,6 +401,30 @@ export default function Apartments() {
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {deleteTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
+          <div style={{ background: '#ffffff', borderRadius: '16px', width: '100%', maxWidth: '380px', padding: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AlertTriangle size={22} color="#ef4444" />
+              </div>
+              <button onClick={handleCloseDeleteModal} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}><X size={20} /></button>
+            </div>
+
+            <h2 style={{ margin: '0 0 8px', fontSize: '17px', color: '#1e1b4b' }}>Remover item</h2>
+            <p style={{ margin: '0 0 24px', color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>
+              Tem certeza que deseja remover <strong style={{ color: '#1e1b4b' }}>{deleteTarget.label || 'este item'}</strong>? Essa ação não pode ser desfeita.
+            </p>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={handleCloseDeleteModal} style={cancelBtnStyle}>Cancelar</button>
+              <button onClick={handleConfirmDelete} style={confirmDeleteBtnStyle}>Remover</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -448,6 +488,30 @@ const buttonStyle = {
   gap: '8px',
   fontWeight: '600',
   fontSize: '14px'
+}
+
+const cancelBtnStyle = {
+  flex: 1,
+  padding: '12px',
+  border: '1px solid #d1d5db',
+  borderRadius: '10px',
+  background: '#ffffff',
+  color: '#374151',
+  cursor: 'pointer',
+  fontWeight: '600',
+  fontSize: '14px',
+}
+
+const confirmDeleteBtnStyle = {
+  flex: 1,
+  padding: '12px',
+  border: 'none',
+  borderRadius: '10px',
+  background: '#ef4444',
+  color: '#ffffff',
+  cursor: 'pointer',
+  fontWeight: '600',
+  fontSize: '14px',
 }
 
 const labelStyle = {

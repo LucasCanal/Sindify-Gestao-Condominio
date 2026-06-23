@@ -38,7 +38,7 @@ const labelOf = (list, value) => list.find((i) => i.value === value)?.label || v
 export default function ServiceRequests() {
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
-  const [priority, setPriority] = useState('media')
+  const [priority, setPriority] = useState('')
   const [description, setDescription] = useState('')
 
   const [tickets, setTickets] = useState([])
@@ -61,8 +61,8 @@ export default function ServiceRequests() {
   }, [])
 
   const createTicket = async () => {
-    if (!title || !category || !description) {
-      toast.error('Preencha título, categoria e descrição.')
+    if (!title || !category || !priority || !description) {
+      toast.error('Preencha título, categoria, prioridade e descrição.')
       return
     }
     try {
@@ -70,7 +70,7 @@ export default function ServiceRequests() {
       toast.success('Chamado aberto com sucesso')
       setTitle('')
       setCategory('')
-      setPriority('media')
+      setPriority('')
       setDescription('')
       fetchTickets()
     } catch (error) {
@@ -122,6 +122,7 @@ export default function ServiceRequests() {
           </select>
 
           <select value={priority} onChange={(e) => setPriority(e.target.value)} style={inputStyle}>
+            <option value="">Prioridade</option>
             {PRIORITIES.map((p) => (
               <option key={p.value} value={p.value}>{p.label}</option>
             ))}
@@ -206,6 +207,8 @@ const inputStyle = {
   border: '1px solid #d1d5db',
   borderRadius: 10,
   boxSizing: 'border-box',
+  color: '#9ca3af',
+  fontWeight: 300,
 }
 
 const buttonStyle = {

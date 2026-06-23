@@ -91,7 +91,6 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: isMobile ? 'column' : 'row', fontFamily: 'inherit' }}>
 
-      {/* ── LADO ESQUERDO: FORM ── */}
       <div style={{
         flex: isMobile ? 'none' : '1 1 50%',
         display: 'flex',
@@ -134,7 +133,6 @@ export default function Login() {
             Gerencie seu condomínio com transparência e eficiência.
           </p>
 
-          {/* Erro geral do form */}
           {errors.form && (
             <div style={{
               display: 'flex',
@@ -337,7 +335,7 @@ export default function Login() {
           background: 'linear-gradient(135deg, #050314 0%, #3b1a75 60%, #7c3aed 100%)',
           overflow: 'hidden'
         }}>
-          {/* glow decorativo */}
+
           <div style={{
             position: 'absolute',
             top: '-10%',
@@ -359,7 +357,6 @@ export default function Login() {
             filter: 'blur(90px)'
           }} />
 
-          {/* grid sutil decorativo */}
           <div style={{
             position: 'absolute',
             inset: 0,
