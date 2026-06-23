@@ -63,38 +63,6 @@ gestao-condominio/
 
 Cada domínio (apartamentos, reservas, veículos, financeiro, avisos, chamados, votações, acesso) possui seu próprio controller, model e arquivo de rotas — mantendo a base de código desacoplada e fácil de escalar.
 
-## 🚀 Como rodar localmente
-
-### Pré-requisitos
-- Node.js 18+
-- MongoDB (local ou Atlas)
-
-### Back-end
-
-```bash
-cd server
-npm install
-# configure o arquivo .env com MONGO_URI, JWT_SECRET, etc.
-npm run dev
-```
-
-### Front-end
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-### Popular áreas comuns (opcional)
-
-```bash
-cd server
-node src/seed/seedSpaces.js
-```
-
-## 📌 Status
-
 Projeto em desenvolvimento ativo. Novas funcionalidades e refinamentos de UI/UX são adicionados continuamente.
 
 ## 📄 Licença
